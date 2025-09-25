@@ -4,8 +4,11 @@ using UnityEngine;
 public class Planet : MonoBehaviour
 {
 
+    public Material testMaterial;
+
     [Range(2, 256)]
     public int resolution = 10;
+    
     [SerializeField, HideInInspector]
     MeshFilter[] meshFilters;
     TerrainFace[] terrainFaces;
@@ -32,7 +35,7 @@ public class Planet : MonoBehaviour
 
                 meshObj.transform.parent = transform;
 
-                meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
+                meshObj.AddComponent<MeshRenderer>().sharedMaterial = new Material(testMaterial);
                 meshFilters[i] = meshObj.AddComponent<MeshFilter>();
                 meshFilters[i].sharedMesh = new Mesh();
             }
