@@ -11,5 +11,6 @@ public class NoiseSettings
     public float roughness = 2;
     public float persistence = .5f;
     public Vector3 center;
+    public float minValue;
 
 }
