@@ -24,6 +24,11 @@ public class Planet : MonoBehaviour
     MeshFilter[] meshFilters;
     TerrainFace[] terrainFaces;
 
+    void Start()
+    {
+        GeneratePlanet();
+    }
+
     void Initialize()
     {
 
@@ -97,7 +102,7 @@ public class Planet : MonoBehaviour
         colorGenerator.UpdateElevation(shapeGenerator.elevationMinMax);
     }
 
-    void GenerateColors()
+    public void GenerateColors()
     {
         colorGenerator.UpdateColors();
     }

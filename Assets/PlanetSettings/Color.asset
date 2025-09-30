@@ -19,7 +19,7 @@ MonoBehaviour:
     key2: {r: 0.80366015, g: 0.81886786, b: 0.45578492, a: 0}
     key3: {r: 0.23737082, g: 0.6679245, b: 0.16509077, a: 0}
     key4: {r: 0.087369576, g: 0.4641509, b: 0, a: 0}
-    key5: {r: 0.3207547, g: 0.28052887, b: 0.18821642, a: 0}
+    key5: {r: 0.3509434, g: 0.1931016, b: 0, a: 0}
     key6: {r: 0.4264151, g: 0.4264151, b: 0.4264151, a: 0}
     key7: {r: 1, g: 1, b: 1, a: 0}
     ctime0: 0
@@ -42,4 +42,4 @@ MonoBehaviour:
     m_ColorSpace: 0
     m_NumColorKeys: 8
     m_NumAlphaKeys: 2
-  planetMaterial: {fileID: -876546973899608171, guid: 1661ee259fea61d478e63d89cba16e2e, type: 3}
+  planetMaterial: {fileID: -876546973899608171, guid: 5d6255ecd4777034eb9499f32e033b20, type: 3}

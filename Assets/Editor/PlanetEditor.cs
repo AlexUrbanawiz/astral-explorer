@@ -24,6 +24,11 @@ public class PlanetEditor : Editor
             planet.GeneratePlanet();
         }
 
+        if (GUILayout.Button("Generate Colors"))
+        {
+            planet.GenerateColors();
+        }
+
         DrawSettingsEditor(planet.shapeSettings, planet.OnShapeSettingsUpdated, ref planet.shapeSettingsFoldout, ref shapeEditor);
         DrawSettingsEditor(planet.colorSettings, planet.OnColorSettingsUpdated, ref planet.colorSettingsFoldout, ref colorEditor);
     }
