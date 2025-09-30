@@ -47,6 +47,8 @@ public class Planet : MonoBehaviour
                 meshObj.AddComponent<MeshRenderer>();
                 meshFilters[i] = meshObj.AddComponent<MeshFilter>();
                 meshFilters[i].sharedMesh = new Mesh();
+                meshObj.AddComponent<MeshCollider>();
+                meshObj.GetComponent<MeshCollider>().sharedMesh = meshFilters[i].sharedMesh;
             }
             meshFilters[i].GetComponent<MeshRenderer>().sharedMaterial = colorSettings.planetMaterial;
 
