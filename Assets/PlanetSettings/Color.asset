@@ -28,7 +28,7 @@ MonoBehaviour:
         ctime0: 0
         ctime1: 4241
         ctime2: 17964
-        ctime3: 27987
+        ctime3: 36314
         ctime4: 53122
         ctime5: 61449
         ctime6: 0
@@ -62,8 +62,8 @@ MonoBehaviour:
         ctime1: 4241
         ctime2: 9483
         ctime3: 14880
-        ctime4: 41711
-        ctime5: 51426
+        ctime4: 43716
+        ctime5: 65535
         ctime6: 65535
         ctime7: 0
         atime0: 0
@@ -78,7 +78,7 @@ MonoBehaviour:
         m_ColorSpace: 0
         m_NumColorKeys: 6
         m_NumAlphaKeys: 2
-      tint: {r: 1, g: 0, b: 0.9522958, a: 0}
+      tint: {r: 0.0690043, g: 1, b: 0, a: 0}
       startHeight: 0.651
       tintPercent: 0
     - gradient:
@@ -111,18 +111,17 @@ MonoBehaviour:
         m_ColorSpace: 0
         m_NumColorKeys: 6
         m_NumAlphaKeys: 2
-      tint: {r: 0, g: 0, b: 0, a: 0}
+      tint: {r: 1, g: 1, b: 1, a: 1}
       startHeight: 0.8
       tintPercent: 0
     noise:
       filterType: 0
       simpleNoiseSettings:
-        strength: 0.98
-        numLayers: 3
+        strength: 1.07
+        numLayers: 4
         baseRoughness: 1
         roughness: 1.74
-        persistence: 0.94
-        randomCenter: 0
+        persistence: 0.11
         center: {x: 0, y: 0, z: 0}
         minValue: 0
       ridgidNoiseSettings:
@@ -131,10 +130,9 @@ MonoBehaviour:
         baseRoughness: 1
         roughness: 2
         persistence: 0.5
-        randomCenter: 0
         center: {x: 0, y: 0, z: 0}
         minValue: 0
         weightMultiplier: 0.8
-    noiseOffset: 1.05
-    noiseStrength: 0.2
+    noiseOffset: 0.41
+    noiseStrength: 0.5
     blendAmount: 1
