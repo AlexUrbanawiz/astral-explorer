@@ -22,8 +22,6 @@ public class NoiseSettings
         public float baseRoughness = 1;
         public float roughness = 2;
         public float persistence = .5f;
-
-        public bool randomCenter;
         public Vector3 center;
 
         public Vector3 RandomizeCenter()
