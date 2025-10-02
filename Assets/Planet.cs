@@ -4,7 +4,7 @@ using UnityEngine;
 public class Planet : MonoBehaviour
 {
 
-    [Range(2, 256)]
+    [Range(2, 2048)]
     public int resolution = 10;
     public bool autoUpate = true;
     public enum FaceRenderMask {All, Top, Bottom, Left, Right, Front, Back}
