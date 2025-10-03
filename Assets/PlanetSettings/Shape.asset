@@ -23,7 +23,7 @@ MonoBehaviour:
         roughness: 2.6
         persistence: 0.5
         center: {x: 1.11, y: 36.06, z: -0.39}
-        minValue: 0.76
+        minValue: 0.97
       ridgidNoiseSettings:
         strength: 1
         numLayers: 1
@@ -52,7 +52,7 @@ MonoBehaviour:
         roughness: 1.7
         persistence: 0.25
         center: {x: 0, y: 0, z: 0}
-        minValue: 0.28
+        minValue: 0.14
         weightMultiplier: 3.28
     enabled: 1
     useFirstLayerAsMask: 1
