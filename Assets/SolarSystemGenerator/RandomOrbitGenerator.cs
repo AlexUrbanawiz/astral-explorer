@@ -124,10 +124,8 @@ public class RandomOrbitGenerator : MonoBehaviour
         celestialBody.UpdateValues();
         celestialBody.initialVelocity = CalculateInitalVelocity(celestialBody);
         Material randomMaterial = materials[Random.Range(0, materials.Length - 1)];
-        
-        // Set up procedural planet generation
-        SetupProceduralPlanet(celestialBody.meshHolder, radius, randomMaterial);
-        
+        // celestialBody.meshHolder.GetComponent<TerrainGenerator>().material = randomMaterial;
+        // celestialBody.meshHolder.GetComponent<Planet>().
         planet.name = $"{randomMaterial.name} Planet";
         mostRecentPlanet = celestialBody;
     }
@@ -160,10 +158,7 @@ public class RandomOrbitGenerator : MonoBehaviour
         celestialBody.UpdateValues();
         celestialBody.initialVelocity = CalculateInitalVelocity(celestialBody);
         Material randomMaterial = materials[Random.Range(0, materials.Length - 1)];
-        
-        // Set up procedural planet generation
-        SetupProceduralPlanet(celestialBody.meshHolder, radius, randomMaterial);
-        
+        // celestialBody.meshHolder.GetComponent<TerrainGenerator>().material = randomMaterial;
         planet.name = $"{randomMaterial.name} Planet";
         mostRecentPlanet = celestialBody;
     }
@@ -307,10 +302,7 @@ public class RandomOrbitGenerator : MonoBehaviour
         celestialBody.surfaceGravity = surfaceGravity;
         celestialBody.UpdateValues();
         Material randomMaterial = materials[Random.Range(0, materials.Length - 1)];
-        
-        // Set up procedural planet generation
-        SetupProceduralPlanet(celestialBody.meshHolder, radius, randomMaterial);
-        
+        // celestialBody.meshHolder.GetComponent<TerrainGenerator>().material = randomMaterial;
         planet.name = $"{randomMaterial.name} Planet";
         return celestialBody;
     }
@@ -409,66 +401,7 @@ public class RandomOrbitGenerator : MonoBehaviour
         }
     }
     return ""; 
-    }
-    
-    /// <summary>
-    /// Sets up GPUPlanetGenerator and PlanetRandomizer on the meshHolder, then randomizes the planet
-    /// </summary>
-    void SetupProceduralPlanet(Transform meshHolder, int planetRadius, Material material)
-    {
-        if (meshHolder == null)
-        {
-            Debug.LogWarning("MeshHolder is null! Cannot set up procedural planet.");
-            return;
-        }
-        
-        // Get or add GPUPlanetGenerator
-        GPUPlanetGenerator planetGenerator = meshHolder.GetComponent<GPUPlanetGenerator>();
-        if (planetGenerator == null)
-        {
-            planetGenerator = meshHolder.gameObject.AddComponent<GPUPlanetGenerator>();
-        }
-        
-        // Set planet radius (convert from world units to generator units)
-        // The CelestialBody uses world units, but GPUPlanetGenerator uses normalized units
-        // We'll set radius to 1 and let the CelestialBody's scale handle the size
-        planetGenerator.radius = 1f;
-        
-        // Set resolution (adjust based on planet size - larger planets can have higher res)
-        // For performance, we'll use a reasonable default
-        if (planetGenerator.resolution == 0)
-        {
-            planetGenerator.resolution = Mathf.Clamp(planetRadius / 10, 50, 150);
-        }
-        
-        // Set collision resolution (lower for performance)
-        if (planetGenerator.collisionResolution == 0)
-        {
-            planetGenerator.collisionResolution = Mathf.Clamp(planetRadius / 20, 20, 50);
-        }
-        
-        // Get or add PlanetRandomizer
-        PlanetRandomizer randomizer = meshHolder.GetComponent<PlanetRandomizer>();
-        if (randomizer == null)
-        {
-            randomizer = meshHolder.gameObject.AddComponent<PlanetRandomizer>();
-        }
-        
-        // Link randomizer to generator
-        randomizer.planetGenerator = planetGenerator;
-        
-        // Randomize the planet (this will generate it)
-        randomizer.RandomizeEverything();
-        
-        // Set material on the mesh renderer
-        MeshRenderer renderer = meshHolder.GetComponent<MeshRenderer>();
-        if (renderer != null && material != null)
-        {
-            renderer.sharedMaterial = material;
-        }
-        
-        Debug.Log($"Set up procedural planet on {meshHolder.name} with radius {planetRadius}");
-    }
+}
 }
 
 [System.Serializable]

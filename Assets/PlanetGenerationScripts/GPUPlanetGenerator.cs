@@ -63,11 +63,6 @@ public class GPUPlanetGenerator : MonoBehaviour
     [Header("LOD Settings")]
     public LODSettings lodSettings;
     Mesh[] lodMeshes;
-    
-    [Header("Collision")]
-    [Tooltip("Resolution for collision mesh (lower = better performance)")]
-    public int collisionResolution = 30;
-    Mesh collisionMesh;
 
     void GenerateLODMeshes()
     {
@@ -264,61 +259,7 @@ public class GPUPlanetGenerator : MonoBehaviour
         // Generate shading data and store in UVs
         GenerateShadingData();
         
-        // Generate collision mesh
-        GenerateCollisionMesh();
-        
         ReleaseBuffers();
-    }
-    
-    /// <summary>
-    /// Generates a lower-resolution mesh for collision detection
-    /// </summary>
-    public void GenerateCollisionMesh()
-    {
-        if (collisionMesh == null)
-        {
-            collisionMesh = new Mesh();
-        }
-        collisionMesh.Clear();
-        collisionMesh.name = "Collision Mesh";
-        
-        // Generate base sphere at collision resolution
-        Vector3[] collisionBaseVertices;
-        int[] collisionTriangles;
-        CreateBaseSphereAtResolution(collisionResolution, out collisionBaseVertices, out collisionTriangles);
-        
-        // Calculate heights for collision mesh
-        float[] collisionHeights = CalculateHeightsGPUForVertices(collisionBaseVertices);
-        
-        // Apply heights
-        Vector3[] collisionVertices = new Vector3[collisionBaseVertices.Length];
-        for (int i = 0; i < collisionBaseVertices.Length; i++)
-        {
-            collisionVertices[i] = collisionBaseVertices[i] * radius * collisionHeights[i];
-        }
-        
-        // Set index format
-        if (collisionVertices.Length > 65535)
-        {
-            collisionMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        }
-        
-        // Set mesh data
-        collisionMesh.vertices = collisionVertices;
-        collisionMesh.triangles = collisionTriangles;
-        collisionMesh.RecalculateNormals();
-        collisionMesh.RecalculateBounds();
-        
-        // Add or update MeshCollider
-        MeshCollider collider = GetComponent<MeshCollider>();
-        if (collider == null)
-        {
-            collider = gameObject.AddComponent<MeshCollider>();
-        }
-        collider.sharedMesh = collisionMesh;
-        collider.convex = false; // Convex is faster but doesn't work well for complex terrain
-        
-        Debug.Log($"Generated collision mesh with {collisionVertices.Length} vertices");
     }
     
     void CreateBaseSphere()
