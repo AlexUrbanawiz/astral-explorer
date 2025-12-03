@@ -449,6 +449,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 5a100b2f2a4bc51478616c533d4304cb, type: 2}
   - {fileID: 2100000, guid: eec9282ecac5e294ba304457c164a5c5, type: 2}
   - {fileID: 2100000, guid: 4338ddb29cede9b4b97cb09e5b9ff28a, type: 2}
+  bodySim: {fileID: 0}
 --- !u!114 &1865038636
 MonoBehaviour:
   m_ObjectHideFlags: 0

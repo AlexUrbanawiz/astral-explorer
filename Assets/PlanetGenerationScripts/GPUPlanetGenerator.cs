@@ -64,6 +64,12 @@ public class GPUPlanetGenerator : MonoBehaviour
     public LODSettings lodSettings;
     Mesh[] lodMeshes;
 
+    [Header("Collision")]
+    [Tooltip("Resolution for collision mesh (lower = better performance)")]
+    public int collisionResolution = 30;
+    Mesh collisionMesh;
+
+
     void GenerateLODMeshes()
     {
         if (lodSettings == null)
@@ -258,6 +264,8 @@ public class GPUPlanetGenerator : MonoBehaviour
         
         // Generate shading data and store in UVs
         GenerateShadingData();
+
+        GenerateCollisionMesh();
         
         ReleaseBuffers();
     }
@@ -323,7 +331,7 @@ public class GPUPlanetGenerator : MonoBehaviour
         mesh.vertices = baseVertices;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
-    }
+    }       
     
     void CalculateHeightsGPU()
     {
@@ -558,6 +566,40 @@ public class GPUPlanetGenerator : MonoBehaviour
             heightBuffer.Release();
             heightBuffer = null;
         }
+    }
+
+    public void GenerateCollisionMesh()
+    {
+        if (collisionMesh == null)
+        {
+            collisionMesh = new Mesh();
+        }
+        else
+        {
+            collisionMesh.Clear();
+        }
+        collisionMesh.name = "Collision Mesh";
+        
+        // Generate base sphere at collision resolution
+        Vector3[] collisionVertices = mesh.vertices;
+        int[] collisionTriangles = mesh.triangles;
+        
+        // Set mesh data
+        collisionMesh.vertices = mesh.vertices;
+        collisionMesh.triangles = mesh.triangles;
+        collisionMesh.RecalculateBounds();
+        collisionMesh.RecalculateNormals();
+        
+        // Add or update MeshCollider
+        MeshCollider collider = GetComponent<MeshCollider>();
+        if (collider == null)
+        {
+            collider = gameObject.AddComponent<MeshCollider>();
+        }
+        collider.sharedMesh = collisionMesh;
+        collider.convex = false; // Convex is faster but doesn't work well for complex terrain
+        
+        Debug.Log($"Generated collision mesh with {collisionVertices.Length} vertices");
     }
     
     void OnDestroy()

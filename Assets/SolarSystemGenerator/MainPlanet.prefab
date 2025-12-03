@@ -9,8 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7391879792897061884}
-  - component: {fileID: 7280122611337157027}
-  - component: {fileID: 4197182316585042918}
+  - component: {fileID: 3402023903035493107}
+  - component: {fileID: 1711790783998328478}
+  - component: {fileID: 4147816168790158902}
+  - component: {fileID: 2365994323141674266}
+  - component: {fileID: 3605192268224074092}
   m_Layer: 3
   m_Name: Mesh Holder
   m_TagString: Untagged
@@ -33,21 +36,60 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5875868380432020476}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7280122611337157027
-MonoBehaviour:
+--- !u!33 &3402023903035493107
+MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 714856052315442085}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b359ac4beb6065488effd4868fc2b1f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  terrainResolution: 50
-  material: {fileID: 0}
---- !u!114 &4197182316585042918
+  m_Mesh: {fileID: 0}
+--- !u!23 &1711790783998328478
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 714856052315442085}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &4147816168790158902
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -56,23 +98,119 @@ MonoBehaviour:
   m_GameObject: {fileID: 714856052315442085}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70a6a7d3370773b4983c7beec49ab57b, type: 3}
+  m_Script: {fileID: 11500000, guid: ed4f9f4c46f35e64195dea6ce567232a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   resolution: 256
-  autoUpate: 1
-  faceRenderMask: 0
-  shapeSettings: {fileID: 11400000, guid: 2a762b34dceaf6d42883d33df3c2e363, type: 2}
-  colorSettings: {fileID: 11400000, guid: 7e12f1cc9cd2b9d45829aeab1345b93e, type: 2}
-  shapeSettingsFoldout: 1
-  colorSettingsFoldout: 1
-  meshFilters:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  radius: 1
+  heightCompute: {fileID: 7200000, guid: 0d2fbf54156f4af45b42932c21a2b32f, type: 3}
+  seed: 0
+  noiseScale: 1
+  numLayers: 4
+  persistence: 0.5
+  lacunarity: 2
+  heightMultiplier: 0.1
+  useContinents: 1
+  useMountains: 1
+  useCraters: 0
+  continentNoise:
+    numLayers: 4
+    lacunarity: 2
+    persistence: 0.5
+    scale: 1
+    elevation: 1
+    verticalShift: 0
+    offset: {x: 0, y: 0, z: 0}
+  continentMaskNoise:
+    numLayers: 4
+    lacunarity: 2
+    persistence: 0.5
+    scale: 1
+    elevation: 1
+    verticalShift: 0
+    offset: {x: 0, y: 0, z: 0}
+  oceanDepthMultiplier: 5
+  oceanFloorDepth: 1.5
+  oceanFloorSmoothing: 0.5
+  mountainBlend: 1.2
+  mountainNoise:
+    numLayers: 5
+    lacunarity: 2
+    persistence: 0.5
+    scale: 1
+    power: 2
+    elevation: 1
+    gain: 1
+    verticalShift: 0
+    peakSmoothing: 0
+    offset: {x: 0, y: 0, z: 0}
+  shadingComputeShader: {fileID: 7200000, guid: 00fe4a6c3b67eab488f1c6580e5cd943, type: 3}
+  biomeNoise:
+    numLayers: 4
+    lacunarity: 2
+    persistence: 0.5
+    scale: 1
+    elevation: 1
+    verticalShift: 0
+    offset: {x: 0, y: 0, z: 0}
+  detailNoise:
+    numLayers: 4
+    lacunarity: 2
+    persistence: 0.5
+    scale: 1
+    elevation: 1
+    verticalShift: 0
+    offset: {x: 0, y: 0, z: 0}
+  lodSettings:
+    lod0: 200
+    lod1: 100
+    lod2: 50
+  collisionResolution: 30
+--- !u!114 &2365994323141674266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 714856052315442085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcf7ad7144336c848b657511f4e273c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  planetGenerator: {fileID: 4147816168790158902}
+  useRandomSeed: 1
+  noiseScaleRange: {x: 0.5, y: 3}
+  numLayersRange: {x: 2, y: 6}
+  persistenceRange: {x: 0.3, y: 0.7}
+  lacunarityRange: {x: 1.5, y: 3}
+  heightMultiplierRange: {x: 0.05, y: 0.3}
+  biomeScaleRange: {x: 0.3, y: 1.5}
+  biomeLayersRange: {x: 3, y: 6}
+  detailScaleRange: {x: 1, y: 4}
+  detailLayersRange: {x: 4, y: 8}
+--- !u!64 &3605192268224074092
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 714856052315442085}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!1 &2006443002888628320
 GameObject:
   m_ObjectHideFlags: 0

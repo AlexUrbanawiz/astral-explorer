@@ -41,9 +41,9 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:
-    - _DesertColor: {r: 0.7886354, g: 0.7259172, b: 0.7416291, a: 1}
-    - _GrassColor: {r: 0.7775728, g: 0.3565896, b: 0.5941737, a: 1}
-    - _RockColor: {r: 0.30748656, g: 0.24228004, b: 0.39841625, a: 1}
+    - _DesertColor: {r: 0.84703344, g: 0.8660662, b: 0.75544655, a: 1}
+    - _GrassColor: {r: 0.8185593, g: 0.41998088, b: 0.60550505, a: 1}
+    - _RockColor: {r: 0.39647555, g: 0.2986609, b: 0.55051446, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &986537460873805651
