@@ -1,0 +1,33 @@
+#pragma kernel CSMain
+
+#include "../Includes/Noise.cginc"
+
+StructuredBuffer<float3> vertices;
+StructuredBuffer<float3> normals; // For slope calculation
+RWStructuredBuffer<float4> shadingData;
+
+uint numVertices;
+
+float4 noiseParams_biome[3];
+float4 noiseParams_detail[3];
+
+[numthreads(64, 1, 1)]
+void CSMain(uint id : SV_DispatchThreadID)
+{
+    if (id >= numVertices) return;
+    
+    float3 pos = vertices[id];
+    float3 normal = normals[id];
+    
+    // Calculate biome (large-scale noise)
+    float biome = FractalNoise3D(pos, noiseParams_biome);
+    
+    // Calculate detail (small-scale noise)
+    float detail = FractalNoise3D(pos, noiseParams_detail);
+    
+    // Calculate slope (how steep - use normal Y component)
+    float slope = 1.0 - abs(normal.y); // 0 = flat, 1 = vertical
+    
+    // Pack into Vector4 (stored in UVs)
+    shadingData[id] = float4(biome, detail, slope, 0);
+}

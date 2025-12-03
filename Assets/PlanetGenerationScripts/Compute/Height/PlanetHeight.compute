@@ -1,0 +1,89 @@
+#pragma kernel CSMain
+
+#include "../Includes/FractalNoise.cginc"
+#include "../Includes/Math.cginc"
+// #include "../Includes/Craters.cginc" // Uncomment if you add craters
+
+StructuredBuffer<float3> vertices;
+RWStructuredBuffer<float> heights;
+uint numVertices;
+
+// Base noise parameters
+float4 noiseParams_base[3];
+
+// Continent settings (for Earth-like planets)
+float4 noiseParams_continents[3];
+float4 noiseParams_mask[3];
+float oceanDepthMultiplier;
+float oceanFloorDepth;
+float oceanFloorSmoothing;
+float mountainBlend;
+
+// Mountain/Ridge settings
+float4 noiseParams_mountains[3];
+
+// Crater settings (if using)
+// StructuredBuffer<Crater> craters;
+// int numCraters;
+// float rimSteepness;
+// float rimWidth;
+
+// Feature toggles
+float useContinents;
+float useMountains;
+float useCraters;
+
+float heightMultiplier;
+
+[numthreads(64, 1, 1)]
+void CSMain(uint id : SV_DispatchThreadID)
+{
+    if (id >= numVertices) return;
+    
+    float3 pos = vertices[id];
+    float finalHeight = 1.0;
+    // Before calculating noise, warp the position
+    float3 warpOffset = float3(
+        simpleNoise(pos, noiseParams_warp),
+        simpleNoise(pos + float3(100, 0, 0), noiseParams_warp),
+        simpleNoise(pos + float3(0, 100, 0), noiseParams_warp)
+    );
+    float3 warpedPos = pos + warpOffset * 0.1; // Warp strength
+
+    // Then use warpedPos instead of pos for noise calculations
+    // Base terrain noise
+    float baseNoise = simpleNoise(warpedPos, noiseParams_base);
+    finalHeight += baseNoise * 0.01 * heightMultiplier;
+    
+    // Continents (Earth-like feature)
+    if (useContinents > 0.5)
+    {
+        float continentShape = simpleNoise(warpedPos, noiseParams_continents);
+        continentShape = smoothMax(continentShape, -oceanFloorDepth, oceanFloorSmoothing);
+        
+        if (continentShape < 0)
+        {
+            continentShape *= 1.0 + oceanDepthMultiplier;
+        }
+        
+        finalHeight += continentShape * 0.01;
+    }
+    
+    // Mountains (Ridge noise)
+    if (useMountains > 0.5)
+    {
+        float ridgeNoise = smoothedRidgidNoise(warpedPos, noiseParams_mountains);
+        float mask = Blend(0, mountainBlend, simpleNoise(warpedPos, noiseParams_mask));
+        finalHeight += ridgeNoise * 0.01 * mask;
+    }
+    
+    // Craters (Moon-like feature)
+    if (useCraters > 0.5)
+    {
+        // float craterDepth = calculateCraterDepth(warpedPos);
+        // finalHeight += craterDepth;
+        // Uncomment when you add crater support
+    }
+    
+    heights[id] = finalHeight;
+}

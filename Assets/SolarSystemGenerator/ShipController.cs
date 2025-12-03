@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class ShipController : GravityObject
 {
@@ -35,14 +36,14 @@ public class ShipController : GravityObject
     public InputAction pitchInputAction;
     public InputAction rollInputAction;
     public InputAction thrustInputAction;
-    public InputAction pauseInputAction;
+    public InputAction dockInputAction;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     
 
     void Awake ()
     {
-        pauseInputAction.Enable();
+        dockInputAction.Enable();
         thrustInputActionX.Enable();
         thrustInputActionY.Enable();
         thrustInputActionZ.Enable();
@@ -63,7 +64,7 @@ public class ShipController : GravityObject
 
     void Update()
     {
-        bool pauseInput = pauseInputAction.IsPressed();
+        bool dockInput = dockInputAction.ReadValue<bool>();
         // if (pauseInput)
         // {
         //     ToggleDock();
@@ -71,6 +72,13 @@ public class ShipController : GravityObject
         if (!docked)
         {
             HandleMovement();
+        }
+        else
+        {
+            if (dockInput)
+            {
+                ToggleDock();
+            }
         }
         
     }
