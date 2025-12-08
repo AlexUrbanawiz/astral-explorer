@@ -1,2 +1,17 @@
 fileFormatVersion: 2
 guid: e6ab9127e1cc6a64a87d41bd69b5f9c7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - baseStar: {instanceID: 0}
+  - basePlanet: {instanceID: 0}
+  - baseMoon: {instanceID: 0}
+  - heightCompute: {fileID: 7200000, guid: 0d2fbf54156f4af45b42932c21a2b32f, type: 3}
+  - shadingComputeShader: {fileID: 7200000, guid: 00fe4a6c3b67eab488f1c6580e5cd943, type: 3}
+  - bodySim: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -48,6 +48,9 @@ public class GPUPlanetGenerator : MonoBehaviour
     [Header("Shading Noise Settings")]
     public SimpleNoiseSettings biomeNoise;
     public SimpleNoiseSettings detailNoise;
+
+    [HideInInspector]
+    public int vertexCount;
     Vector4[] shadingData;
     
     Mesh mesh;
@@ -194,6 +197,7 @@ public class GPUPlanetGenerator : MonoBehaviour
         }
         
         int vertexCount = verticesToProcess.Length;
+        int kernelIndex = heightCompute.FindKernel("CSMain");
         
         // Create temporary buffers
         ComputeBuffer tempVertexBuffer = new ComputeBuffer(vertexCount, sizeof(float) * 3);
@@ -202,22 +206,47 @@ public class GPUPlanetGenerator : MonoBehaviour
         // Set vertex data
         tempVertexBuffer.SetData(verticesToProcess);
         
-        // Set noise parameters using PRNG for seeded randomness
+        // Initialize PRNG
         PRNG prng = new PRNG(seed);
-        Vector3 offset = new Vector3(prng.Value(), prng.Value(), prng.Value()) * 10000f;
         
-        Vector4[] noiseParams = new Vector4[3];
-        noiseParams[0] = new Vector4(offset.x, offset.y, offset.z, numLayers);
-        noiseParams[1] = new Vector4(persistence, lacunarity, noiseScale, 1f);
-        noiseParams[2] = Vector4.zero;
+        // --- SET NOISE PARAMETERS (MATCHING PLANET RANDOMIZER) ---
         
-        // Set buffers and parameters on compute shader
-        int kernelIndex = 0;
+        // 1. Base Noise & Warp (Using public fields)
+        if (continentNoise != null)
+        {
+            continentNoise.SetComputeValues(heightCompute, prng, "_base", noiseScale, heightMultiplier, persistence);
+             // Reset PRNG for warp to match sequence (optional but safer for consistency)
+             prng = new PRNG(seed); 
+             continentNoise.SetComputeValues(heightCompute, prng, "_warp", noiseScale, heightMultiplier, persistence);
+        }
+        // 2. Continents
+        if (useContinents && continentNoise != null)
+        {
+            continentNoise.SetComputeValues(heightCompute, prng, "_continents");
+            if (continentMaskNoise != null)
+                continentMaskNoise.SetComputeValues(heightCompute, prng, "_mask");
+        }
+        // 3. Mountains
+        if (useMountains && mountainNoise != null)
+        {
+            mountainNoise.SetComputeValues(heightCompute, prng, "_mountains");
+        }
+        // 4. Set Feature Toggles & Floats
+        heightCompute.SetFloat("heightMultiplier", heightMultiplier);
+        heightCompute.SetInt("seed", seed);
+        heightCompute.SetFloat("useContinents", useContinents ? 1.0f : 0.0f);
+        heightCompute.SetFloat("useMountains", useMountains ? 1.0f : 0.0f);
+        heightCompute.SetFloat("useCraters", useCraters ? 1.0f : 0.0f);
+        heightCompute.SetFloat("oceanDepthMultiplier", oceanDepthMultiplier);
+        heightCompute.SetFloat("oceanFloorDepth", oceanFloorDepth);
+        heightCompute.SetFloat("oceanFloorSmoothing", oceanFloorSmoothing);
+        heightCompute.SetFloat("mountainBlend", mountainBlend);
+        // ---------------------------------------------------------
+        
+        // Set buffers
         heightCompute.SetBuffer(kernelIndex, "vertices", tempVertexBuffer);
         heightCompute.SetBuffer(kernelIndex, "heights", tempHeightBuffer);
         heightCompute.SetInt("numVertices", vertexCount);
-        heightCompute.SetVectorArray("noiseParams", noiseParams);
-        heightCompute.SetFloat("heightMultiplier", heightMultiplier);
         
         // Dispatch compute shader
         int threadGroupSize = 64;
@@ -250,9 +279,27 @@ public class GPUPlanetGenerator : MonoBehaviour
         }
         mesh = meshFilter.sharedMesh;
         mesh.name = "GPU Generated Planet";
-        
-        // Create base sphere
+
         CreateBaseSphere();
+        
+        vertexCount = mesh.vertices.Length;
+
+        Vector3[] initialVertices = mesh.vertices;
+        // 1. Release old buffers BEFORE creating new ones
+        ReleaseBuffers();
+
+        // 2. Create the Compute Buffers (THIS IS THE MISSING STEP)
+
+        // Create the vertex buffer (Vector3 is 3 floats)
+        // sizeof(float) * 3 = 12 bytes
+        vertexBuffer = new ComputeBuffer(vertexCount, sizeof(float) * 3);
+        vertexBuffer.SetData(initialVertices); // Populate the buffer with the initial sphere vertices
+
+        // Create the height buffer (float is 1 float)
+        // sizeof(float) = 4 bytes
+        heightBuffer = new ComputeBuffer(vertexCount, sizeof(float));
+        // Create base sphere
+        
         
         // Calculate heights on GPU
         CalculateHeightsGPU();
@@ -335,71 +382,49 @@ public class GPUPlanetGenerator : MonoBehaviour
     
     void CalculateHeightsGPU()
     {
+        // Make sure the Compute Shader asset is assigned!
         if (heightCompute == null)
         {
-            Debug.LogError("No compute shader assigned!");
+            Debug.LogError("Height Compute Shader is not assigned on the GPUPlanetGenerator!");
             return;
         }
-        
-        if (baseVertices == null || baseVertices.Length == 0)
+
+        // 1. FIX: Explicitly find the kernel (Fixes "Kernel at index (0) is invalid")
+        int kernelIndex = heightCompute.FindKernel("CSMain"); 
+
+        if (kernelIndex < 0)
         {
-            Debug.LogError("No base vertices found! Make sure CreateBaseSphere() ran successfully.");
+            Debug.LogError("Failed to find kernel 'CSMain' in PlanetHeight.compute! Check the spelling.");
+            // Assuming ReleaseBuffers() is called elsewhere or at cleanup
             return;
         }
-        
-        int vertexCount = baseVertices.Length;
-        
-        // Create buffers
-        vertexBuffer = new ComputeBuffer(vertexCount, sizeof(float) * 3);
-        heightBuffer = new ComputeBuffer(vertexCount, sizeof(float));
-        
-        // Set vertex data
-        vertexBuffer.SetData(baseVertices);
-        
-        // Set noise parameters using PRNG for seeded randomness
-        PRNG prng = new PRNG(seed);
-        Vector3 offset = new Vector3(prng.Value(), prng.Value(), prng.Value()) * 10000f;
-        
-        Vector4[] noiseParams = new Vector4[3];
-        noiseParams[0] = new Vector4(offset.x, offset.y, offset.z, numLayers);
-        noiseParams[1] = new Vector4(persistence, lacunarity, noiseScale, 1f);
-        noiseParams[2] = Vector4.zero; // Unused for now
 
-        // Set terrain feature toggles
-        heightCompute.SetFloat("useContinents", useContinents ? 1f : 0f);
-        heightCompute.SetFloat("useMountains", useMountains ? 1f : 0f);
-        heightCompute.SetFloat("useCraters", useCraters ? 1f : 0f);
+        // 2. Set necessary single float/int properties directly on the Compute Shader
+        // (The noise *arrays* are set by SetComputeValues in PlanetRandomizer:RandomizeShape())
 
-        // Set continent parameters
-        if (useContinents && continentNoise != null && continentMaskNoise != null)
-        {
-            PRNG continentPrng = new PRNG(seed);
-            continentNoise.SetComputeValues(heightCompute, continentPrng, "_continents");
-            continentMaskNoise.SetComputeValues(heightCompute, continentPrng, "_mask");
-            
-            heightCompute.SetFloat("oceanDepthMultiplier", oceanDepthMultiplier);
-            heightCompute.SetFloat("oceanFloorDepth", oceanFloorDepth);
-            heightCompute.SetFloat("oceanFloorSmoothing", oceanFloorSmoothing);
-            heightCompute.SetFloat("mountainBlend", mountainBlend);
-        }
-
-        // Set mountain parameters
-        if (useMountains && mountainNoise != null)
-        {
-            PRNG mountainPrng = new PRNG(seed);
-            mountainNoise.SetComputeValues(heightCompute, mountainPrng, "_mountains");
-        }
+        // Base properties
+        heightCompute.SetFloat("heightMultiplier", heightMultiplier);
+        heightCompute.SetInt("seed", seed); 
         
-        // Set buffers and parameters on compute shader
-        int kernelIndex = 0;
+        // Feature toggles
+        heightCompute.SetFloat("useContinents", useContinents ? 1.0f : 0.0f);
+        heightCompute.SetFloat("useMountains", useMountains ? 1.0f : 0.0f);
+        heightCompute.SetFloat("useCraters", useCraters ? 1.0f : 0.0f);
+        
+        // Continent floats (set regardless of the toggle, to ensure the shader has values)
+        heightCompute.SetFloat("oceanDepthMultiplier", oceanDepthMultiplier);
+        heightCompute.SetFloat("oceanFloorDepth", oceanFloorDepth);
+        heightCompute.SetFloat("oceanFloorSmoothing", oceanFloorSmoothing);
+        heightCompute.SetFloat("mountainBlend", mountainBlend);
+        
+
+        // 3. Set buffers for the kernel
         heightCompute.SetBuffer(kernelIndex, "vertices", vertexBuffer);
         heightCompute.SetBuffer(kernelIndex, "heights", heightBuffer);
-        heightCompute.SetInt("numVertices", vertexCount);
-        heightCompute.SetVectorArray("noiseParams", noiseParams);
-        heightCompute.SetFloat("heightMultiplier", heightMultiplier);
+        heightCompute.SetInt("numVertices", vertexCount); 
         
         // Dispatch compute shader
-        int threadGroupSize = 64; // Must match [numthreads] in compute shader
+        int threadGroupSize = 64; 
         int numGroups = Mathf.CeilToInt(vertexCount / (float)threadGroupSize);
         heightCompute.Dispatch(kernelIndex, numGroups, 1, 1);
         
@@ -574,21 +599,11 @@ public class GPUPlanetGenerator : MonoBehaviour
         {
             collisionMesh = new Mesh();
         }
-        else
-        {
-            collisionMesh.Clear();
-        }
         collisionMesh.name = "Collision Mesh";
         
-        // Generate base sphere at collision resolution
-        Vector3[] collisionVertices = mesh.vertices;
-        int[] collisionTriangles = mesh.triangles;
-        
-        // Set mesh data
-        collisionMesh.vertices = mesh.vertices;
-        collisionMesh.triangles = mesh.triangles;
-        collisionMesh.RecalculateBounds();
-        collisionMesh.RecalculateNormals();
+        // [FIX] Actually use the collisionResolution to generate a simpler mesh
+        // This stops the "Physics.PhysX cleaning mesh failed" error
+        GenerateMeshAtResolution(collisionResolution, ref collisionMesh);
         
         // Add or update MeshCollider
         MeshCollider collider = GetComponent<MeshCollider>();
@@ -597,9 +612,9 @@ public class GPUPlanetGenerator : MonoBehaviour
             collider = gameObject.AddComponent<MeshCollider>();
         }
         collider.sharedMesh = collisionMesh;
-        collider.convex = false; // Convex is faster but doesn't work well for complex terrain
+        collider.convex = false; 
         
-        Debug.Log($"Generated collision mesh with {collisionVertices.Length} vertices");
+        Debug.Log($"Generated collision mesh with {collisionMesh.vertexCount} vertices");
     }
     
     void OnDestroy()
@@ -660,7 +675,7 @@ public class GPUPlanetGenerator : MonoBehaviour
 
 
     [ContextMenu("Create Default Noise Settings")]
-    void CreateDefaultNoiseSettings()
+    public void CreateDefaultNoiseSettings()
     {
         // Create biome noise settings
         if (biomeNoise == null)
@@ -686,7 +701,7 @@ public class GPUPlanetGenerator : MonoBehaviour
     }
 
     [ContextMenu("Create Default Terrain Settings")]
-    void CreateDefaultTerrainSettings()
+    public void CreateDefaultTerrainSettings()
     {
         // Create continent noise
         if (continentNoise == null)

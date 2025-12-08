@@ -17,11 +17,19 @@ public class CelestialBody : GravityObject
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody>();
-        rb.mass = mass;
-        transform.localScale = new Vector3(radius, radius, radius);
-        // transform.position = position;
-        currentVelocity = initialVelocity;
+        rb = GetComponent<Rigidbody>(); 
+    
+        // Check if Rigidbody was successfully found
+        if (rb == null) {
+            Debug.LogError($"Rigidbody not found on {gameObject.name}. Cannot initialize CelestialBody.");
+            // We'll let the rest of the code run, but the position getter will need a fallback.
+        }
+        if (rb != null) {
+            rb.mass = mass;
+            // The following lines assume a RigidBody, so they must be inside the check
+            transform.localScale = new Vector3(radius, radius, radius);
+            currentVelocity = initialVelocity;
+        }
     }
 
     public void UpdateVelocity(CelestialBody[] allBodies, float timeStep)
@@ -46,9 +54,16 @@ public class CelestialBody : GravityObject
     {
         mass = surfaceGravity * radius * radius / Universe.gravitationalConstant;
         transform.localScale = Vector3.one * radius;
-        // transform.position = position;
-        rb.mass = mass;
-        meshHolder = transform.GetChild (0);
+        // 2. Re-get Rigidbody in OnValidate() since object might have changed
+        rb = GetComponent<Rigidbody>(); 
+        if (rb != null) {
+            rb.mass = mass;
+        }
+        // meshHolder access is fine since GetChild(0) doesn't rely on rb
+        if (transform.childCount > 0)
+        {
+            meshHolder = transform.GetChild (0);
+        }
     }
 
     public void UpdateValues()
@@ -74,7 +89,17 @@ public class CelestialBody : GravityObject
     {
         get
         {
-            return rb.position;
+            // 3. Add a null check with a fallback position
+            if (rb != null)
+            {
+                return rb.position;
+            }
+            else
+            {
+                // Fallback: return the transform's position if Rigidbody isn't available
+                // This is safer, especially in Edit Mode or during instantiation.
+                return transform.position;
+            }
         }
     }
     

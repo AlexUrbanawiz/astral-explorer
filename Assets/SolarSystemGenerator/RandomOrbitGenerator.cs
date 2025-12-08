@@ -39,6 +39,9 @@ public class RandomOrbitGenerator : MonoBehaviour
 
     [Header("Materials")]
     public Material[] materials;
+    [Header("Compute Shaders")] 
+    public ComputeShader heightCompute;
+    public ComputeShader shadingComputeShader;
 
     [Header("Objects")]
     CelestialBody mainStar;
@@ -90,7 +93,7 @@ public class RandomOrbitGenerator : MonoBehaviour
         celestialBody.surfaceGravity = surfaceGravity;
         celestialBody.SetPosition(Vector3.zero);
         celestialBody.UpdateValues();
-        GetComponent<TerrainGenerator>().
+        // GetComponent<TerrainGenerator>().
         GetComponent<OrbitDebugDisplay>().centralBody = celestialBody;
         mainStar = celestialBody;
 
@@ -417,6 +420,12 @@ void SetupProceduralPlanet(Transform meshHolder, int planetRadius, Material mate
         {
             planetGenerator = meshHolder.gameObject.AddComponent<GPUPlanetGenerator>();
         }
+
+        planetGenerator.CreateDefaultTerrainSettings();
+        planetGenerator.CreateDefaultNoiseSettings();
+
+        planetGenerator.heightCompute = heightCompute;
+        planetGenerator.shadingComputeShader = shadingComputeShader;
         
         // Set planet radius (convert from world units to generator units)
         // The CelestialBody uses world units, but GPUPlanetGenerator uses normalized units
@@ -447,7 +456,7 @@ void SetupProceduralPlanet(Transform meshHolder, int planetRadius, Material mate
         randomizer.planetGenerator = planetGenerator;
         
         // Randomize the planet (this will generate it)
-        randomizer.RandomizeEverything();
+        
         
         // Set material on the mesh renderer
         MeshRenderer renderer = meshHolder.GetComponent<MeshRenderer>();
@@ -456,6 +465,9 @@ void SetupProceduralPlanet(Transform meshHolder, int planetRadius, Material mate
             renderer.sharedMaterial = material;
         }
         
+        randomizer.RandomizeEverything();
+
+
         Debug.Log($"Set up procedural planet on {meshHolder.name} with radius {planetRadius}");
     }
 

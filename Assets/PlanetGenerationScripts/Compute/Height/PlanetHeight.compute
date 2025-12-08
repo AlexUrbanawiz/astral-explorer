@@ -10,6 +10,7 @@ uint numVertices;
 
 // Base noise parameters
 float4 noiseParams_base[3];
+float4 noiseParams_warp[3]; 
 
 // Continent settings (for Earth-like planets)
 float4 noiseParams_continents[3];

@@ -55,23 +55,78 @@ public class PlanetRandomizer : MonoBehaviour
             Debug.LogError("No planet generator assigned!");
             return;
         }
-        
-        // Generate or use random seed
-        int newSeed = useRandomSeed ? Random.Range(0, 1000000) : planetGenerator.seed;
-        PRNG prng = new PRNG(newSeed);
-        
-        // Randomize shape parameters
-        planetGenerator.seed = newSeed;
+
+        // 1. Randomize or get seed
+        int currentSeed = planetGenerator.seed;
+        if (useRandomSeed)
+        {
+            currentSeed = Random.Range(0, 1000000);
+            planetGenerator.seed = currentSeed;
+        }
+
+        // Initialize PRNG
+        PRNG prng = new PRNG(currentSeed);
+
+        // 2. Randomize global noise properties on the GPUPlanetGenerator
+        // These properties are NOT part of a struct, so we randomize them directly
         planetGenerator.noiseScale = prng.Range(noiseScaleRange.x, noiseScaleRange.y);
         planetGenerator.numLayers = prng.Range(numLayersRange.x, numLayersRange.y);
         planetGenerator.persistence = prng.Range(persistenceRange.x, persistenceRange.y);
         planetGenerator.lacunarity = prng.Range(lacunarityRange.x, lacunarityRange.y);
         planetGenerator.heightMultiplier = prng.Range(heightMultiplierRange.x, heightMultiplierRange.y);
+
+        // 3. Call SetComputeValues for all *feature* noise arrays (THIS IS THE CRITICAL PART)
+        // The base noise must be passed manually because its parameters are public fields, not a single struct.
         
-        // Regenerate planet
+        // Base Noise (use the public fields to simulate a struct for the SetComputeValues call)
+        // We will use one of the existing SimpleNoiseSettings overloads to set the base/warp noise.
+        // Assuming the base noise uses SimpleNoiseSettings.SetComputeValues(ComputeShader cs, PRNG prng, string varSuffix, float scale, float elevation, float persistence)
+        
+        // Use the randomized public fields for the Base/Warp noise setting:
+        planetGenerator.continentNoise.SetComputeValues(
+            planetGenerator.heightCompute, 
+            prng, 
+            "noiseParams_base",
+            planetGenerator.noiseScale, 
+            planetGenerator.heightMultiplier, // The base elevation is often height multiplier in this structure
+            planetGenerator.persistence
+        );
+        
+        // Set warp noise using the same parameters (as per PlanetHeight.compute)
+        planetGenerator.continentNoise.SetComputeValues(
+            planetGenerator.heightCompute, 
+            prng, 
+            "noiseParams_warp",
+            planetGenerator.noiseScale, 
+            planetGenerator.heightMultiplier, 
+            planetGenerator.persistence
+        );
+
+
+        // Continents
+        if (planetGenerator.useContinents && planetGenerator.continentNoise != null)
+        {
+            // This uses the noise settings defined directly on the struct
+            planetGenerator.continentNoise.SetComputeValues(planetGenerator.heightCompute, prng, "noiseParams_continents");
+
+            if (planetGenerator.continentMaskNoise != null)
+            {
+                planetGenerator.continentMaskNoise.SetComputeValues(planetGenerator.heightCompute, prng, "noiseParams_mask");
+            }
+            // NOTE: Other continent floats should be randomized and set here if you need to randomize them.
+        }
+
+        // Mountains
+        if (planetGenerator.useMountains && planetGenerator.mountainNoise != null)
+        {
+            // This uses the SetComputeValues on RidgeNoiseSettings
+            planetGenerator.mountainNoise.SetComputeValues(planetGenerator.heightCompute, prng, "noiseParams_mountains");
+        }
+
+        // 4. Trigger planet generation
         planetGenerator.GeneratePlanet();
-        
-        Debug.Log($"Randomized shape with seed: {newSeed}");
+
+        Debug.Log($"Randomized shape with seed: {currentSeed}");
     }
     
     [ContextMenu("Randomize Shading")]

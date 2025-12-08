@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1711790783998328478}
   - component: {fileID: 4147816168790158902}
   - component: {fileID: 2365994323141674266}
-  - component: {fileID: 3605192268224074092}
+  - component: {fileID: -2005597173729187923}
   m_Layer: 3
   m_Name: Mesh Holder
   m_TagString: Untagged
@@ -161,6 +161,7 @@ MonoBehaviour:
     elevation: 1
     verticalShift: 0
     offset: {x: 0, y: 0, z: 0}
+  vertexCount: 264198
   lodSettings:
     lod0: 200
     lod1: 100
@@ -189,7 +190,7 @@ MonoBehaviour:
   biomeLayersRange: {x: 3, y: 6}
   detailScaleRange: {x: 1, y: 4}
   detailLayersRange: {x: 4, y: 8}
---- !u!64 &3605192268224074092
+--- !u!64 &-2005597173729187923
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -261,7 +262,7 @@ MonoBehaviour:
   surfaceGravity: 0
   initialVelocity: {x: 0, y: 0, z: 0}
   orbitalPlaneRotation: {x: 0, y: 0, z: 0, w: 1}
-  meshHolder: {fileID: 0}
+  meshHolder: {fileID: 7391879792897061884}
 --- !u!54 &4715269722482397848
 Rigidbody:
   m_ObjectHideFlags: 0

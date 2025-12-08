@@ -76,7 +76,6 @@ MonoBehaviour:
   radius: 0
   surfaceGravity: 0
   initialVelocity: {x: 0, y: 0, z: 0}
-  position: {x: 0, y: 0, z: 0}
   orbitalPlaneRotation: {x: 0, y: 0, z: 0, w: 1}
   meshHolder: {fileID: 6741864305550082735}
 --- !u!1 &8678476541089199793
